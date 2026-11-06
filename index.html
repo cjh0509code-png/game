@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>游戏架</title>
+<style>
+  :root{
+    --bg:#f4efe6;
+    --panel:#fffdf8;
+    --ink:#232019;
+    --ink2:#6d6355;
+    --ink3:#a2977f;
+    --line:#e6dbc9;
+    --accent:#a8623a;
+    --shadow:0 1px 2px rgba(70,55,35,.05), 0 14px 36px rgba(70,55,35,.10);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100%;
+    background:radial-gradient(1100px 520px at 50% -6%, #fffaf0 0%, rgba(255,250,240,0) 62%), var(--bg);
+    color:var(--ink);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:56px 22px 40px}
+  header{margin-bottom:34px}
+  h1{margin:0 0 8px;font-size:clamp(26px,4.4vw,36px);letter-spacing:2px;font-weight:800}
+  header p{margin:0;color:var(--ink2);font-size:13.5px}
+  header p b{color:var(--accent);font-weight:600}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .card{
+    display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;
+    box-shadow:var(--shadow);transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 2px 4px rgba(70,55,35,.06), 0 22px 48px rgba(70,55,35,.16)}
+  .art{height:172px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .art svg{display:block;width:100%;height:100%}
+  .body{padding:18px 20px 6px}
+  .kicker{font:10px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:2.5px;color:var(--ink3);text-transform:uppercase}
+  h2{margin:6px 0 6px;font-size:20px;letter-spacing:1px}
+  .desc{margin:0 0 12px;color:var(--ink2);font-size:13px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tags span{
+    font-size:11px;color:var(--ink2);background:#f6f0e5;border:1px solid var(--line);
+    border-radius:99px;padding:3px 9px;
+  }
+  .go{
+    margin:0 20px 18px;padding:11px 0;text-align:center;border-radius:10px;
+    background:var(--accent);color:#fff;font-weight:600;letter-spacing:2px;font-size:13px;
+  }
+  footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink3);font-size:12px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  footer code{font:11.5px/1 ui-monospace,Menlo,Consolas,monospace;background:#f6f0e5;border:1px solid var(--line);border-radius:5px;padding:3px 6px;color:var(--ink2)}
+  @media (max-width:720px){
+    .wrap{padding:32px 16px 28px}
+    .cards{grid-template-columns:1fr}
+    .art{height:140px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>游戏架</h1>
+    <p>两款浏览器游戏，双击即开，<b>零安装、零依赖</b>。都支持<b>联机房间</b>：建房发链接、队友准备、房主开局，所有人同一秒出发。推箱子有 24 关可解关卡。</p>
+  </header>
+
+  <div class="cards">
+
+    <a class="card" href="neon-runner/index.html">
+      <div class="art">
+        <svg viewBox="0 0 320 172" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#070b16"/>
+              <stop offset="0.55" stop-color="#101a35"/>
+              <stop offset="1" stop-color="#2a1b45"/>
+            </linearGradient>
+            <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#5ef0ff" stop-opacity=".2"/>
+              <stop offset=".55" stop-color="#5ef0ff"/>
+              <stop offset="1" stop-color="#ff5ea8" stop-opacity=".5"/>
+            </linearGradient>
+          </defs>
+          <rect width="320" height="172" fill="url(#sky)"/>
+          <circle cx="252" cy="36" r="26" fill="#ff8fd0" opacity=".16"/>
+          <circle cx="252" cy="36" r="7" fill="#ffd6ee" opacity=".9"/>
+          <g fill="#111d33">
+            <rect x="14" y="86" width="34" height="52"/><rect x="52" y="70" width="26" height="68"/>
+            <rect x="92" y="94" width="40" height="44"/><rect x="150" y="76" width="30" height="62"/>
+            <rect x="196" y="92" width="46" height="46"/><rect x="256" y="68" width="28" height="70"/>
+          </g>
+          <g fill="#5ef0ff" opacity=".22">
+            <rect x="20" y="94" width="4" height="5"/><rect x="30" y="106" width="4" height="5"/>
+            <rect x="58" y="80" width="4" height="5"/><rect x="66" y="92" width="4" height="5"/>
+            <rect x="100" y="102" width="4" height="5"/><rect x="112" y="116" width="4" height="5"/>
+            <rect x="158" y="86" width="4" height="5"/><rect x="204" y="100" width="4" height="5"/>
+          </g>
+          <rect x="0" y="137" width="320" height="2" fill="url(#line)"/>
+          <rect x="0" y="139" width="320" height="33" fill="#080d17"/>
+          <g stroke="#5ef0ff" opacity=".12">
+            <path d="M40 139 L22 172"/><path d="M110 139 L100 172"/><path d="M190 139 L188 172"/><path d="M262 139 L276 172"/>
+          </g>
+          <g fill="#ff5ea8">
+            <polygon points="228,137 236,118 244,137"/>
+            <polygon points="286,137 292,124 298,137"/>
+          </g>
+          <g>
+            <rect x="86" y="104" width="10" height="16" rx="4" fill="#9fe9ff"/>
+            <circle cx="93" cy="100" r="5.5" fill="#eafcff"/>
+            <rect x="89.5" y="98" width="7" height="3" fill="#0a0f1c"/>
+            <path d="M90 120 l-5 17 M96 120 l5 17" stroke="#9fe9ff" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g fill="#96f8ff">
+            <circle cx="132" cy="112" r="3.4"/><circle cx="150" cy="104" r="3.4"/><circle cx="168" cy="112" r="3.4"/>
+          </g>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="kicker">action · endless</div>
+        <h2>霓虹疾走</h2>
+        <p class="desc">在夜色里不停奔跑。跳过路障、滑过横梁；速度越来越快、障碍越来越密。3 格生命，掉完才结束。单人冲分，或和朋友各自用手机、电脑联机对战。</p>
+        <div class="tags"><span>单人 / 联机对战</span><span>二段跳</span><span>滑铲</span><span>3 格生命</span><span>障碍渐密</span></div>
+      </div>
+      <div class="go">开 始</div>
+    </a>
+
+    <a class="card" href="sokoban/index.html">
+      <div class="art">
+        <svg viewBox="0 0 320 172" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="320" height="172" fill="#f4eee4"/>
+          <g>
+            <rect x="54" y="26" width="208" height="124" rx="10" fill="#fbf7f0" stroke="#e6dbc9"/>
+            <g fill="#efe6d7">
+              <rect x="64" y="36" width="28" height="28"/><rect x="120" y="36" width="28" height="28"/><rect x="176" y="36" width="28" height="28"/><rect x="232" y="36" width="28" height="28"/>
+              <rect x="92" y="64" width="28" height="28"/><rect x="148" y="64" width="28" height="28"/><rect x="204" y="64" width="28" height="28"/>
+              <rect x="64" y="92" width="28" height="28"/><rect x="120" y="92" width="28" height="28"/><rect x="176" y="92" width="28" height="28"/><rect x="232" y="92" width="28" height="28"/>
+              <rect x="92" y="120" width="28" height="28"/><rect x="148" y="120" width="28" height="28"/>
+            </g>
+            <g fill="#ede4d4">
+              <rect x="92" y="36" width="28" height="28"/><rect x="148" y="36" width="28" height="28"/><rect x="204" y="36" width="28" height="28"/>
+              <rect x="64" y="64" width="28" height="28"/><rect x="120" y="64" width="28" height="28"/><rect x="176" y="64" width="28" height="28"/><rect x="232" y="64" width="28" height="28"/>
+              <rect x="92" y="92" width="28" height="28"/><rect x="148" y="92" width="28" height="28"/><rect x="204" y="92" width="28" height="28"/>
+              <rect x="64" y="120" width="28" height="28"/><rect x="120" y="120" width="28" height="28"/><rect x="176" y="120" width="28" height="28"/>
+            </g>
+            <circle cx="262" cy="50" r="5.5" fill="none" stroke="#c2ab86" stroke-width="2" stroke-dasharray="3 3"/>
+            <circle cx="234" cy="78" r="5.5" fill="none" stroke="#c2ab86" stroke-width="2" stroke-dasharray="3 3"/>
+            <g>
+              <rect x="152" y="64" width="22" height="22" rx="4" fill="#d8a468"/>
+              <path d="M163 64 v22 M152 75 h22" stroke="#a8763f" stroke-width="2"/>
+            </g>
+            <g>
+              <rect x="182" y="130" width="22" height="22" rx="4" fill="#69a893"/>
+              <path d="M193 130 v22 M182 141 h22" stroke="#3f7565" stroke-width="2"/>
+            </g>
+            <circle cx="106" cy="106" r="9" fill="#2f4f63"/>
+            <circle cx="109.5" cy="103" r="2" fill="#f7f2e8"/>
+            <polygon points="115,102 121,106 115,110" fill="#2f4f63"/>
+            <g fill="#3d4653">
+              <rect x="54" y="26" width="208" height="6" rx="3"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="kicker">puzzle · sokoban</div>
+        <h2>推箱子</h2>
+        <p class="desc">把每个箱子推到目标点。24 个关卡，越往后越绕；每关的最优推动次数都由求解器算出。可以一个人解，也可以两个人一起推。</p>
+        <div class="tags"><span>单人 / 联机协作</span><span>双人同图</span><span>24 关</span><span>最优推数</span></div>
+      </div>
+      <div class="go">开 始</div>
+    </a>
+
+  </div>
+
+  <footer>
+    <span>想让大家用 IP 一起玩：双击 <code>serve-games.bat</code>，把命令行里的局域网地址发出去。</span>
+    <span>记录保存在各自浏览器里</span>
+  </footer>
+</div>
+</body>
+</html>

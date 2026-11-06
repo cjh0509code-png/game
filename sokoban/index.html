@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>推箱子 · 仓库</title>
+<style>
+  :root{
+    --paper:#f4eee4;
+    --panel:#fbf7f0;
+    --ink:#2c2a26;
+    --ink2:#6b6459;
+    --ink3:#a09585;
+    --line:#e2d8c8;
+    --accent:#a8623a;
+    --accent2:#4f8f7c;
+    --shadow:0 1px 2px rgba(70,55,35,.06), 0 8px 24px rgba(70,55,35,.08);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #fbf6ec 0%, rgba(251,246,236,0) 60%),
+      var(--paper);
+    color:var(--ink);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .app{
+    min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;
+    max-width:980px;margin:0 auto;padding:14px 16px 12px;
+  }
+  header,footer{width:100%}
+  /* ---------- header ---------- */
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.5px}
+  .brand span{font:11px/1 ui-monospace,Menlo,Consolas,monospace;color:var(--ink3);letter-spacing:2px}
+  /* 单人 / 双人切换 */
+  .modeseg{
+    display:inline-flex;gap:2px;background:#efe6d7;border:1px solid var(--line);
+    border-radius:99px;padding:2px;margin-left:8px;align-self:center;
+  }
+  .modeseg button{
+    padding:4px 11px;border:0;background:transparent;box-shadow:none;border-radius:99px;
+    font-size:11.5px;color:var(--ink2);
+  }
+  .modeseg button:hover{background:transparent;color:var(--ink);transform:none}
+  .modeseg button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(70,55,35,.16)}
+  .stats{display:flex;gap:18px;align-items:flex-end}
+  .stat{display:flex;flex-direction:column;gap:2px;min-width:34px}
+  .stat label{font-size:10.5px;color:var(--ink3);letter-spacing:.5px}
+  .stat b{font:600 17px/1.1 ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+  .stat b.dim{color:var(--ink3);font-weight:500}
+  /* ---------- stage ---------- */
+  main{position:relative;width:100%;margin:14px 0 0;display:flex;align-items:center;justify-content:center}
+  canvas{display:block;border-radius:10px}
+  /* ---------- footer ---------- */
+  footer{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .foot-btns{display:flex;gap:8px}
+  .hint{font-size:12px;color:var(--ink3)}
+  .hint kbd{
+    font:11px/1 ui-monospace,Menlo,Consolas,monospace;background:var(--panel);border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:4px;padding:2px 5px;color:var(--ink2);margin:0 1px;
+  }
+  .btns{display:flex;gap:8px}
+  button{
+    font:13px/1 inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:9px 14px;cursor:pointer;transition:.15s;box-shadow:0 1px 0 rgba(70,55,35,.04);
+  }
+  button:hover{background:#fff;border-color:#d5c9b6;transform:translateY(-1px)}
+  button:active{transform:translateY(0)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  button.primary:hover{background:#96603c;border-color:#96603c}
+  button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  button.ghost{background:transparent}
+  /* ---------- overlays ---------- */
+  .ov{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(244,238,228,.78);backdrop-filter:blur(2px);z-index:5;
+    padding:20px;
+  }
+  .ov.on{display:flex;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:22px 24px;min-width:280px;max-width:min(92%,460px);text-align:center;
+  }
+  .card h2{margin:0 0 4px;font-size:18px}
+  .card .sub{margin:0 0 16px;color:var(--ink3);font-size:12.5px}
+  .card .rows{display:flex;gap:22px;justify-content:center;margin:0 0 18px}
+  .card .rows div{display:flex;flex-direction:column;gap:3px}
+  .card .rows span{font-size:10.5px;color:var(--ink3)}
+  .card .rows b{font:600 18px/1 ui-monospace,Menlo,Consolas,monospace}
+  .card .act{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .badge{
+    display:inline-block;font:11px/1 ui-monospace,Menlo,Consolas,monospace;color:#fff;background:var(--accent2);
+    padding:4px 8px;border-radius:99px;margin-bottom:10px;letter-spacing:.5px;
+  }
+  /* level grid */
+  .lvhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .lvhead h2{margin:0;font-size:16px;text-align:left}
+  .grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;
+    max-height:min(54vh,420px);overflow-y:auto;padding:2px;
+  }
+  .grid button{
+    position:relative;padding:12px 0 10px;border-radius:10px;display:flex;flex-direction:column;gap:3px;align-items:center;
+  }
+  .grid button .n{font:600 16px/1 ui-monospace,Menlo,Consolas,monospace}
+  .grid button .p{font-size:10px;color:var(--ink3)}
+  .grid button.done{border-color:#c8d9d2;background:#f2f8f5}
+  .grid button.done .n{color:var(--accent2)}
+  .grid button.done::after{
+    content:"✓";position:absolute;top:4px;right:6px;font-size:10px;color:var(--accent2);
+  }
+  .grid button.cur{outline:2px solid var(--accent);outline-offset:1px}
+  /* toast */
+  .toast{
+    position:absolute;left:50%;bottom:14px;transform:translate(-50%,8px);
+    background:rgba(44,42,38,.92);color:#fff;font-size:12.5px;padding:8px 14px;border-radius:8px;
+    opacity:0;pointer-events:none;transition:.2s;max-width:80%;text-align:center;z-index:6;
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  /* dpad */
+  .dpad{display:none;grid-template-columns:repeat(3,56px);grid-auto-rows:44px;gap:6px;justify-content:center}
+  .dpad button{width:100%;height:100%;padding:0;font-size:16px}
+  .dpad .sp{visibility:hidden}
+  @media (max-width:640px){
+    .app{padding:10px 10px 8px}
+    .brand h1{font-size:17px}
+    .stats{gap:12px}
+    .stat b{font-size:15px}
+    .hint{display:none}
+    .dpad{display:grid}
+    .grid{grid-template-columns:repeat(4,1fr)}
+    footer{justify-content:center;flex-direction:column-reverse;gap:10px}
+    .foot-btns{width:100%;justify-content:center}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <h1>推箱子</h1>
+      <span id="lvName">直线</span>
+      <div class="modeseg" id="modeSeg">
+        <button data-mode="solo" class="on">单人</button>
+        <button data-mode="net">联机</button>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><label>关卡</label><b id="sLv">1/12</b></div>
+      <div class="stat"><label>步数</label><b id="sMoves">0</b></div>
+      <div class="stat"><label>推动</label><b id="sPushes">0</b></div>
+      <div class="stat"><label>最优</label><b id="sPar" class="dim">1</b></div>
+      <div class="stat"><label>最佳</label><b id="sBest" class="dim">—</b></div>
+    </div>
+  </header>
+
+  <main id="stage">
+    <canvas id="cv"></canvas>
+    <div class="toast" id="toast"></div>
+
+    <div class="ov" id="ovWin">
+      <div class="card">
+        <div class="badge" id="winBadge">新纪录</div>
+        <h2 id="winTitle">第 1 关 完成</h2>
+        <p class="sub" id="winSub">12 步 · 4 推</p>
+        <div class="rows">
+          <div><span>步数</span><b id="wMoves">0</b></div>
+          <div><span>推动</span><b id="wPushes">0</b></div>
+          <div><span>最优推动</span><b id="wPar">0</b></div>
+        </div>
+        <div class="act">
+          <button class="primary" id="btnNext">下一关</button>
+          <button id="btnAgain">再玩一次</button>
+          <button class="ghost" id="btnPick">关卡表</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ov" id="ovLv">
+      <div class="card" style="min-width:300px">
+        <div class="lvhead">
+          <h2>关卡选择</h2>
+          <button class="ghost" id="btnCloseLv" style="padding:6px 10px">关闭</button>
+        </div>
+        <div class="grid" id="lvGrid"></div>
+        <p class="sub" style="margin:0">数字为最优推动次数 · ✓ 表示已通关</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="hint" id="hintText">
+      <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 或 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 ·
+      <kbd>Z</kbd> 撤销 · <kbd>R</kbd> 重来 · <kbd>Esc</kbd> 关卡
+    </div>
+    <div class="foot-btns">
+      <button id="btnUndo">撤销</button>
+      <button id="btnReset">重来</button>
+      <button id="btnLv">关卡</button>
+    </div>
+    <div class="dpad">
+      <span class="sp"></span><button data-dir="up">↑</button><span class="sp"></span>
+      <button data-dir="left">←</button><button data-dir="down">↓</button><button data-dir="right">→</button>
+    </div>
+  </footer>
+</div>
+
+<script src="/multiplayer/room.js"></script>
+<script src="levels.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var LEVELS = window.SOKOBAN_LEVELS || [];
+  var SAVE = 'sokoban.records.v1';
+
+  var cv = document.getElementById('cv');
+  var ctx = cv.getContext('2d');
+  var stage = document.getElementById('stage');
+
+  var G = {
+    index: 0,
+    W: 0, H: 0,
+    wall: null,      // Uint8Array
+    goal: null,      // Uint8Array
+    boxes: [],       // {x,y,rx,ry}
+    players: [],     // [{x,y,rx,ry,face,idx,push}]  单人 1 个，联机 2 个
+    mode: 'solo',    // solo | net
+    moves: 0,
+    pushes: 0,
+    history: [],
+    solved: false,
+    tile: 40,
+    ox: 0, oy: 0,
+    pulse: 0
+  };
+
+  /* 两个工人的配色：P1 冷蓝（原有），P2 暖橙（与仓库主题同色系） */
+  var PCOL = [
+    { top: '#43647b', bottom: '#263f4e', tag: '#3c5f76' },
+    { top: '#c4824f', bottom: '#8f5228', tag: '#a8623a' }
+  ];
+
+  var records = loadRecords();
+
+  function loadRecords() {
+    try {
+      var raw = localStorage.getItem(SAVE);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+  }
+  function saveRecords() {
+    try { localStorage.setItem(SAVE, JSON.stringify(records)); } catch (e) {}
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------------- 关卡装载 ---------------- */
+
+  function levelIndex(i) {
+    return Math.max(0, Math.min(LEVELS.length - 1, i));
+  }
+
+  function makePlayer(x, y, idx) {
+    return { x: x, y: y, rx: x, ry: y, face: 1, idx: idx, push: 0 };
+  }
+
+  /**
+   * 双人时给 P2 找出生点：从 P1 出发 BFS，取最近的空地。
+   * 箱子与墙都不可穿越，保证不会把 P2 塞进箱子里。
+   */
+  function findSpawn(sx, sy) {
+    var seen = new Uint8Array(G.W * G.H);
+    var q = [[sx, sy]];
+    seen[sy * G.W + sx] = 1;
+    var DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    while (q.length) {
+      var cur = q.shift();
+      for (var i = 0; i < 4; i++) {
+        var nx = cur[0] + DIRS[i][0], ny = cur[1] + DIRS[i][1];
+        if (isWall(nx, ny)) continue;
+        var k = ny * G.W + nx;
+        if (seen[k]) continue;
+        seen[k] = 1;
+        if (boxAt(nx, ny)) continue;
+        return { x: nx, y: ny };
+      }
+    }
+    // 兜底：全图找任意空地
+    for (var yy = 0; yy < G.H; yy++) {
+      for (var xx = 0; xx < G.W; xx++) {
+        if (!isWall(xx, yy) && !boxAt(xx, yy)) return { x: xx, y: yy };
+      }
+    }
+    return { x: sx, y: sy };
+  }
+
+  function loadLevel(i) {
+    var lv = LEVELS[levelIndex(i)];
+    G.index = levelIndex(i);
+
+    var rows = lv.map;
+    G.H = rows.length;
+    G.W = Math.max.apply(null, rows.map(function (r) { return r.length; }));
+    G.wall = new Uint8Array(G.W * G.H);
+    G.goal = new Uint8Array(G.W * G.H);
+    G.boxes = [];
+
+    var spawn = null;
+
+    for (var y = 0; y < G.H; y++) {
+      for (var x = 0; x < G.W; x++) {
+        var ch = rows[y][x] || ' ';
+        var k = y * G.W + x;
+        if (ch === '#') G.wall[k] = 1;
+        if (ch === '.' || ch === '*' || ch === '+') G.goal[k] = 1;
+        if (ch === '$' || ch === '*') G.boxes.push({ x: x, y: y, rx: x, ry: y });
+        if (ch === '@' || ch === '+') spawn = { x: x, y: y };
+      }
+    }
+    if (!spawn) spawn = { x: 1, y: 1 };
+
+    G.players = [makePlayer(spawn.x, spawn.y, 0)];
+    if (G.mode === 'net') {
+      var sp2 = findSpawn(spawn.x, spawn.y);
+      G.players.push(makePlayer(sp2.x, sp2.y, 1));
+    }
+    G.moves = 0;
+    G.pushes = 0;
+    G.history = [];
+    G.solved = false;
+    G.pulse = 0;
+
+    $('lvName').textContent = lv.name;
+    $('sLv').textContent = (G.index + 1) + '/' + LEVELS.length;
+    $('sPar').textContent = lv.par;
+    updateStats();
+    hideOverlays();
+    resizeCanvas();
+    drawLevelGrid();
+  }
+
+  function updateStats() {
+    $('sMoves').textContent = G.moves;
+    $('sPushes').textContent = G.pushes;
+    var rec = records[LEVELS[G.index].id];
+    $('sBest').textContent = rec ? rec.pushes : '—';
+    $('btnUndo').disabled = G.mode === 'net' || G.history.length === 0;
+  }
+
+  /* ---------------- 规则 ---------------- */
+
+  function isWall(x, y) {
+    if (x < 0 || y < 0 || x >= G.W || y >= G.H) return true;
+    return !!G.wall[y * G.W + x];
+  }
+  function isGoal(x, y) {
+    return !!G.goal[y * G.W + x];
+  }
+  function boxAt(x, y) {
+    for (var i = 0; i < G.boxes.length; i++) {
+      if (G.boxes[i].x === x && G.boxes[i].y === y) return G.boxes[i];
+    }
+    return null;
+  }
+
+  function playerAt(x, y, exceptIdx) {
+    for (var i = 0; i < G.players.length; i++) {
+      if (i === exceptIdx) continue;
+      if (G.players[i].x === x && G.players[i].y === y) return G.players[i];
+    }
+    return null;
+  }
+
+  function snapshot() {
+    return {
+      players: G.players.map(function (p) { return { x: p.x, y: p.y, push: p.push }; }),
+      boxes: G.boxes.map(function (b) { return { x: b.x, y: b.y }; }),
+      moves: G.moves, pushes: G.pushes
+    };
+  }
+
+  function move(pi, dx, dy) {
+    if (G.solved) return;
+    var p = G.players[pi];
+    if (!p) return;
+    p.face = dx > 0 ? 1 : dx < 0 ? -1 : p.face;
+    var nx = p.x + dx;
+    var ny = p.y + dy;
+    if (isWall(nx, ny)) return;
+    if (playerAt(nx, ny, pi)) { toast('前面是队友，让一下'); return; }
+
+    var box = boxAt(nx, ny);
+    if (box) {
+      var bx = nx + dx;
+      var by = ny + dy;
+      if (isWall(bx, by) || boxAt(bx, by)) return;
+      if (playerAt(bx, by, pi)) { toast('队友挡住了这个箱子'); return; }
+      G.history.push(snapshot());
+      box.x = bx;
+      box.y = by;
+      G.pushes++;
+      p.push++;
+      G.pulse = 1;
+    } else {
+      G.history.push(snapshot());
+    }
+
+    p.x = nx;
+    p.y = ny;
+    G.moves++;
+    updateStats();
+    if (box) checkDeadlock(box);
+    checkWin();
+    netSync();
+  }
+
+  function undo() {
+    if (G.mode === 'net') { toast('联机时用「重来」同步整局'); return; }
+    if (!G.history.length) return;
+    var s = G.history.pop();
+    for (var i = 0; i < G.players.length && i < s.players.length; i++) {
+      G.players[i].x = s.players[i].x;
+      G.players[i].y = s.players[i].y;
+      G.players[i].push = s.players[i].push;
+    }
+    G.boxes = s.boxes.map(function (b) { return { x: b.x, y: b.y, rx: b.x, ry: b.y }; });
+    G.moves = s.moves; G.pushes = s.pushes;
+    G.solved = false;
+    updateStats();
+    netSync();
+  }
+
+  function reset() {
+    loadLevel(G.index);
+    netSync();
+  }
+
+  function checkWin() {
+    for (var i = 0; i < G.boxes.length; i++) {
+      if (!isGoal(G.boxes[i].x, G.boxes[i].y)) return;
+    }
+    G.solved = true;
+    var lv = LEVELS[G.index];
+    var better = false;
+
+    // 双人是协作玩，不和单人的"最优推数"记录混在一起
+    if (G.mode === 'solo') {
+      var prev = records[lv.id];
+      better = !prev || G.pushes < prev.pushes || (G.pushes === prev.pushes && G.moves < prev.moves);
+      if (better) {
+        records[lv.id] = { pushes: G.pushes, moves: G.moves };
+        saveRecords();
+      }
+    }
+    updateStats();
+    setTimeout(function () { showWin(better); }, 420);
+  }
+
+  /* 死锁提示：只报确定的死局（角落 / 贴墙且该列行无目标） */
+  function checkDeadlock(box) {
+    if (isGoal(box.x, box.y)) return;
+    var up = isWall(box.x, box.y - 1);
+    var down = isWall(box.x, box.y + 1);
+    var left = isWall(box.x - 1, box.y);
+    var right = isWall(box.x + 1, box.y);
+    var corner = (up || down) && (left || right);
+    var stuckCol = (left || right) && !goalInColumn(box.x);
+    var stuckRow = (up || down) && !goalInRow(box.y);
+    if (corner || stuckCol || stuckRow) {
+      toast('这个箱子推死了 · 按 Z 撤销');
+    }
+  }
+
+  function goalInColumn(x) {
+    for (var y = 0; y < G.H; y++) if (G.goal[y * G.W + x]) return true;
+    return false;
+  }
+  function goalInRow(y) {
+    for (var x = 0; x < G.W; x++) if (G.goal[y * G.W + x]) return true;
+    return false;
+  }
+
+  /* ---------------- 渲染 ---------------- */
+
+  /** 画布按棋盘实际尺寸收缩，剩余空间交给 flex 居中，避免手机上大片空白 */
+  function resizeCanvas() {
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var pad = 10;
+    var availW = Math.max(240, stage.clientWidth - pad * 2);
+    var reserve = window.innerWidth <= 640 ? 260 : 210;   // 顶栏 + 底栏预估高度
+    var availH = Math.max(150, window.innerHeight - reserve);
+    var tile = Math.floor(Math.min(availW / G.W, availH / G.H, 86));
+    tile = Math.max(16, tile);
+
+    G.tile = tile;
+    G.ox = pad;
+    G.oy = pad;
+
+    var w = tile * G.W + pad * 2;
+    var h = tile * G.H + pad * 2;
+    cv.style.width = w + 'px';
+    cv.style.height = h + 'px';
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function draw() {
+    var t = G.tile;
+    var W = G.W, H = G.H;
+    var ox = G.ox, oy = G.oy;
+
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    // 底板阴影
+    ctx.save();
+    ctx.shadowColor = 'rgba(90,70,45,.14)';
+    ctx.shadowBlur = 22;
+    ctx.shadowOffsetY = 8;
+    ctx.fillStyle = '#fbf7f0';
+    roundRect(ox - 8, oy - 8, W * t + 16, H * t + 16, 12);
+    ctx.fill();
+    ctx.restore();
+
+    // 地板
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        if (G.wall[y * W + x]) continue;
+        ctx.fillStyle = (x + y) % 2 === 0 ? '#f1e8d9' : '#ede4d4';
+        ctx.fillRect(ox + x * t, oy + y * t, t, t);
+      }
+    }
+
+    // 目标
+    for (var k = 0; k < W * H; k++) {
+      if (!G.goal[k]) continue;
+      var gx = ox + (k % W) * t + t / 2;
+      var gy = oy + Math.floor(k / W) * t + t / 2;
+      ctx.save();
+      ctx.fillStyle = 'rgba(196,154,92,.13)';
+      ctx.beginPath();
+      ctx.arc(gx, gy, t * 0.24, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#b08a52';
+      ctx.lineWidth = Math.max(1.5, t * 0.05);
+      ctx.setLineDash([t * 0.11, t * 0.09]);
+      ctx.beginPath();
+      ctx.arc(gx, gy, t * 0.21, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(176,138,82,.55)';
+      ctx.beginPath();
+      ctx.arc(gx, gy, Math.max(1.6, t * 0.045), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 墙
+    for (var wy = 0; wy < H; wy++) {
+      for (var wx = 0; wx < W; wx++) {
+        if (!G.wall[wy * W + wx]) continue;
+        var px = ox + wx * t, py = oy + wy * t;
+        ctx.fillStyle = '#3d4653';
+        roundRect(px + 1, py + 1, t - 2, t - 2, Math.max(2, t * 0.12));
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.07)';
+        roundRect(px + 1, py + 1, t - 2, Math.max(2, t * 0.16), Math.max(2, t * 0.12));
+        ctx.fill();
+      }
+    }
+
+    // 箱子 + 玩家：按 y 排序，营造遮挡关系
+    var items = [];
+    for (var i = 0; i < G.boxes.length; i++) {
+      items.push({ type: 'box', ry: G.boxes[i].ry, ref: G.boxes[i] });
+    }
+    items.push({ type: 'player', ry: G.players[0].ry, ref: G.players[0] });
+    for (var pi = 1; pi < G.players.length; pi++) {
+      items.push({ type: 'player', ry: G.players[pi].ry, ref: G.players[pi] });
+    }
+    items.sort(function (a, b) { return a.ry - b.ry; });
+
+    for (var n = 0; n < items.length; n++) {
+      var it = items[n];
+      if (it.type === 'box') drawBox(it.ref, t, ox, oy);
+      else drawPlayer(it.ref, t, ox, oy);
+    }
+  }
+
+  function drawBox(b, t, ox, oy) {
+    var cx = ox + b.rx * t + t / 2;
+    var cy = oy + b.ry * t + t / 2;
+    var s = t * 0.76;
+    var onGoal = isGoal(b.x, b.y);
+
+    ctx.save();
+    // 影子
+    ctx.fillStyle = 'rgba(90,70,45,.13)';
+    ctx.beginPath();
+    ctx.ellipse(cx, oy + b.ry * t + t * 0.86, s * 0.46, s * 0.13, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 箱体
+    var grd = ctx.createLinearGradient(cx - s / 2, cy - s / 2, cx + s / 2, cy + s / 2);
+    if (onGoal) {
+      grd.addColorStop(0, '#69a893');
+      grd.addColorStop(1, '#477f6d');
+    } else {
+      grd.addColorStop(0, '#d8a468');
+      grd.addColorStop(1, '#b8823f');
+    }
+    ctx.fillStyle = grd;
+    roundRect(cx - s / 2, cy - s / 2, s, s, s * 0.16);
+    ctx.fill();
+
+    // 捆扎带
+    ctx.strokeStyle = onGoal ? 'rgba(20,60,48,.35)' : 'rgba(96,58,20,.32)';
+    ctx.lineWidth = Math.max(1.5, s * 0.07);
+    ctx.beginPath();
+    ctx.moveTo(cx - s / 2, cy);
+    ctx.lineTo(cx + s / 2, cy);
+    ctx.moveTo(cx, cy - s / 2);
+    ctx.lineTo(cx, cy + s / 2);
+    ctx.stroke();
+
+    // 高光
+    ctx.strokeStyle = 'rgba(255,255,255,.28)';
+    ctx.lineWidth = Math.max(1, s * 0.045);
+    roundRect(cx - s / 2 + s * 0.06, cy - s / 2 + s * 0.06, s * 0.88, s * 0.88, s * 0.13);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPlayer(p, t, ox, oy) {
+    var cx = ox + p.rx * t + t / 2;
+    var cy = oy + p.ry * t + t / 2;
+    var r = t * 0.32;
+    var col = PCOL[p.idx] || PCOL[0];
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(90,70,45,.15)';
+    ctx.beginPath();
+    ctx.ellipse(cx, oy + p.ry * t + t * 0.86, r * 0.9, r * 0.28, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 身体
+    var grd = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+    grd.addColorStop(0, col.top);
+    grd.addColorStop(1, col.bottom);
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 高光
+    ctx.fillStyle = 'rgba(255,255,255,.16)';
+    ctx.beginPath();
+    ctx.arc(cx - r * 0.3, cy - r * 0.34, r * 0.42, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 眼睛（朝向前方偏移，作为方向提示）
+    var ex = cx + p.face * r * 0.22;
+    ctx.fillStyle = '#f8f4ea';
+    ctx.beginPath();
+    ctx.arc(ex - r * 0.22, cy - r * 0.06, Math.max(1.3, r * 0.17), 0, Math.PI * 2);
+    ctx.arc(ex + r * 0.22, cy - r * 0.06, Math.max(1.3, r * 0.17), 0, Math.PI * 2);
+    ctx.fill();
+
+    // 瞳孔
+    ctx.fillStyle = '#25333d';
+    ctx.beginPath();
+    ctx.arc(ex - r * 0.22 + p.face * r * 0.06, cy - r * 0.06, Math.max(0.7, r * 0.075), 0, Math.PI * 2);
+    ctx.arc(ex + r * 0.22 + p.face * r * 0.06, cy - r * 0.06, Math.max(0.7, r * 0.075), 0, Math.PI * 2);
+    ctx.fill();
+
+    // 联机时头顶标"你 / 队友"，同屏双人则标 P1 / P2，避免两个小人认错
+    if (G.players.length > 1) {
+      var label = G.mode === 'net'
+        ? (p.idx === myIdx ? '你' : '队友')
+        : 'P' + (p.idx + 1);
+      var fs = Math.max(8, t * 0.19);
+      ctx.font = '700 ' + fs + 'px ui-monospace,Menlo,Consolas,monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      var tw = ctx.measureText(label).width + fs * 0.55;
+      var ty = cy - r - fs * 0.5;
+      ctx.fillStyle = col.tag;
+      roundRect(cx - tw / 2, ty - fs * 0.52, tw, fs * 1.05, fs * 0.35);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillText(label, cx, ty + fs * 0.03);
+    }
+    ctx.restore();
+  }
+
+  var lastT = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000 || 0.016);
+    lastT = now;
+    var k = Math.min(1, dt * 16);
+
+    for (var pi = 0; pi < G.players.length; pi++) {
+      var pl = G.players[pi];
+      pl.rx += (pl.x - pl.rx) * k;
+      pl.ry += (pl.y - pl.ry) * k;
+    }
+    for (var i = 0; i < G.boxes.length; i++) {
+      G.boxes[i].rx += (G.boxes[i].x - G.boxes[i].rx) * k;
+      G.boxes[i].ry += (G.boxes[i].y - G.boxes[i].ry) * k;
+    }
+    if (G.pulse > 0) G.pulse = Math.max(0, G.pulse - dt * 3);
+
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------------- 界面 ---------------- */
+
+  function toast(msg) {
+    var el = $('toast');
+    el.textContent = msg;
+    el.classList.add('on');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.classList.remove('on'); }, 2400);
+  }
+
+  /* ---------------- 模式（单人 / 联机协作） ---------------- */
+
+  var room = null;        // 联机房间
+  var myIdx = 0;          // 联机时我控制哪个工人（房主蓝、客人橙）
+  var syncLock = 0;       // 自己刚动过的短暂保护，避免被对面旧状态拽回
+
+  var SOLO_HINT =
+    '<kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 或 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · ' +
+    '<kbd>Z</kbd> 撤销 · <kbd>R</kbd> 重来 · <kbd>Esc</kbd> 关卡';
+
+  var NET_HINT =
+    '<b style="color:#3c5f76">你</b> 控制一个工人 · 队友控制另一个 · ' +
+    '<kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · ' +
+    '<kbd>R</kbd> 重来（双方同步）';
+
+  function updateModeSeg() {
+    var seg = $('modeSeg');
+    Array.prototype.forEach.call(seg.querySelectorAll('button'), function (b) {
+      b.classList.toggle('on', b.dataset.mode === G.mode);
+    });
+    $('hintText').innerHTML = G.mode === 'net' ? NET_HINT : SOLO_HINT;
+  }
+
+  function setMode(m) {
+    if (m === G.mode) return;
+    if (m === 'net') { openNet(); return; }
+    if (room) { room.destroy(); room = null; window.__room = null; }
+    myIdx = 0;
+    G.mode = 'solo';
+    updateModeSeg();
+    loadLevel(G.index);
+  }
+
+  Array.prototype.forEach.call($('modeSeg').querySelectorAll('button'), function (b) {
+    b.addEventListener('click', function () { setMode(b.dataset.mode); });
+  });
+
+  /* ---------------- 联机 ---------------- */
+
+  function netSync() {
+    if (G.mode !== 'net' || !room) return;
+    if (!room.snap || room.snap.status !== 'playing') return;
+    syncLock = Date.now() + 120;
+    room.report({
+      shared: {
+        by: room.selfId,
+        index: G.index,
+        boxes: G.boxes.map(function (b) { return { x: b.x, y: b.y }; }),
+        players: G.players.map(function (p) { return { x: p.x, y: p.y, push: p.push }; }),
+        moves: G.moves,
+        pushes: G.pushes,
+        solved: G.solved,
+        at: Date.now()
+      }
+    });
+  }
+
+  function applyRemote(s) {
+    if (G.mode !== 'net' || !room || !s || !s.boxes || !s.players) return;
+
+    // 先处理换关：对方选的新关要跟过去，哪怕本地还停在上一关的结算上
+    if (s.index !== G.index) loadLevel(s.index);
+    // 两边都过了这一关就别再互相覆盖；但只要有一边没结算（重来了），就得照单接住
+    if (G.solved && s.solved) return;
+
+    G.boxes = s.boxes.map(function (b) { return { x: b.x, y: b.y, rx: b.x, ry: b.y }; });
+    var guard = Date.now() < syncLock;
+    for (var i = 0; i < G.players.length && i < s.players.length; i++) {
+      if (i === myIdx && guard) continue;      // 自己刚动过，位置以本地为准
+      var q = G.players[i];
+      q.x = s.players[i].x;
+      q.y = s.players[i].y;
+      q.push = s.players[i].push;
+      q.rx = q.x;
+      q.ry = q.y;
+    }
+    G.moves = s.moves;
+    G.pushes = s.pushes;
+    if (!s.solved && G.solved) {
+      G.solved = false;
+      hideOverlays();
+    }
+    updateStats();
+    if (s.solved) {
+      G.solved = true;
+      updateStats();
+      setTimeout(function () { showWin(false); }, 320);
+    }
+  }
+
+  function openNet() {
+    if (window.__room) window.__room.destroy();
+    GameRoom.open({
+      game: 'sokoban',
+      title: '仓库推箱 · 联机协作',
+      onStart: function (ctx) {
+        room = ctx.room;
+        G.mode = 'net';
+        myIdx = room.isHost() ? 0 : 1;
+        updateModeSeg();
+        loadLevel(G.index);
+        if (room.isHost()) setTimeout(netSync, 200);   // 房主把开局棋盘推给对面
+        toast('联机协作：你控制 ' + (myIdx === 0 ? '蓝色' : '橙色') + '工人');
+      },
+      onSnapshot: function (snap) {
+        if (!room) return;
+        var s = snap.shared;
+        if (!s || s.by === room.selfId) return;
+        applyRemote(s);
+      },
+      onEnd: function () {
+        // 推箱子是协作玩法，不判负；这里只处理对面掉线的情况
+      },
+      onClose: function () {
+        // 退出房间就回到单人，别留一个没有对手的"联机"界面
+        if (G.mode === 'net') {
+          G.mode = 'solo';
+          myIdx = 0;
+          room = null;
+          updateModeSeg();
+          loadLevel(G.index);
+        }
+      }
+    }).then(function (r) {
+      window.__room = r;
+      room = r;
+    });
+  }
+
+  function hideOverlays() {
+    $('ovWin').classList.remove('on');
+    $('ovLv').classList.remove('on');
+  }
+
+  function showWin(isRecord) {
+    var lv = LEVELS[G.index];
+    $('winTitle').textContent = '第 ' + (G.index + 1) + ' 关 · ' + lv.name;
+    var sub = G.moves + ' 步 · ' + G.pushes + ' 推';
+    if (G.mode === 'net' && G.players.length > 1) {
+      sub += ' · 你 ' + G.players[myIdx].push + ' 推 / 队友 ' + G.players[1 - myIdx].push + ' 推';
+    }
+    $('winSub').textContent = sub;
+    $('wMoves').textContent = G.moves;
+    $('wPushes').textContent = G.pushes;
+    $('wPar').textContent = lv.par;
+    $('winBadge').style.display = isRecord ? 'inline-block' : 'none';
+    $('btnNext').disabled = G.index >= LEVELS.length - 1;
+    $('ovWin').classList.add('on');
+  }
+
+  function drawLevelGrid() {
+    var grid = $('lvGrid');
+    grid.innerHTML = '';
+    LEVELS.forEach(function (lv, i) {
+      var b = document.createElement('button');
+      var rec = records[lv.id];
+      if (rec) b.className = 'done';
+      if (i === G.index) b.className += ' cur';
+      b.innerHTML = '<span class="n">' + lv.id + '</span><span class="p">' + (rec ? rec.pushes : lv.par) + ' 推</span>';
+      b.title = lv.name;
+      b.addEventListener('click', function () {
+        if (G.mode === 'net' && !(room && room.isHost())) { toast('由房主选关'); return; }
+        hideOverlays();
+        loadLevel(i);
+        netSync();
+      });
+      grid.appendChild(b);
+    });
+  }
+
+  /* ---------------- 输入 ---------------- */
+
+  // 双人时一人一套键位；单人时两套都控制同一个工人
+  var P1KEYS = { KeyW: [0, -1], KeyS: [0, 1], KeyA: [-1, 0], KeyD: [1, 0] };
+  var P2KEYS = {
+    ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0]
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (room && room.snap && room.snap.status !== 'playing') {
+      if (e.code === 'Escape' && room.snap.status === 'lobby') {
+        e.preventDefault();
+        room.destroy();
+        room = null;
+      }
+      return;
+    }
+    var d1 = P1KEYS[e.code];
+    var d2 = P2KEYS[e.code];
+    if (d1 || d2) {
+      e.preventDefault();
+      if ($('ovLv').classList.contains('on')) return;
+      var d = d1 || d2;
+      move(G.mode === 'net' ? myIdx : 0, d[0], d[1]);
+      return;
+    }
+    if (e.code === 'KeyZ' || e.code === 'Backspace') { e.preventDefault(); undo(); }
+    else if (e.code === 'KeyR') { e.preventDefault(); reset(); }
+    else if (e.code === 'Escape') {
+      $('ovLv').classList.toggle('on');
+    }
+  });
+
+  $('btnUndo').addEventListener('click', undo);
+  $('btnReset').addEventListener('click', reset);
+  $('btnLv').addEventListener('click', function () {
+    drawLevelGrid();
+    $('ovLv').classList.add('on');
+  });
+  $('btnCloseLv').addEventListener('click', function () { $('ovLv').classList.remove('on'); });
+  $('btnNext').addEventListener('click', function () {
+    if (G.mode === 'net' && !(room && room.isHost())) { toast('由房主选下一关'); return; }
+    hideOverlays();
+    loadLevel(G.index + 1);
+    netSync();
+  });
+  $('btnAgain').addEventListener('click', function () {
+    hideOverlays();
+    reset();
+  });
+  $('btnPick').addEventListener('click', function () {
+    hideOverlays();
+    drawLevelGrid();
+    $('ovLv').classList.add('on');
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.dpad button'), function (b) {
+    b.addEventListener('click', function () {
+      var m = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[b.dataset.dir];
+      move(G.mode === 'net' ? myIdx : 0, m[0], m[1]);
+    });
+  });
+
+  // 手机滑动
+  var tx = 0, ty = 0;
+  cv.addEventListener('touchstart', function (e) {
+    var p = e.changedTouches[0];
+    tx = p.clientX; ty = p.clientY;
+  }, { passive: true });
+  cv.addEventListener('touchend', function (e) {
+    var p = e.changedTouches[0];
+    var dx = p.clientX - tx, dy = p.clientY - ty;
+    if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+    var who = G.mode === 'net' ? myIdx : 0;
+    if (Math.abs(dx) > Math.abs(dy)) move(who, dx > 0 ? 1 : -1, 0);
+    else move(who, 0, dy > 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.addEventListener('resize', resizeCanvas);
+
+  /* ---------------- 启动 ---------------- */
+
+  /** 只读调试口：自动化测试用，不参与游戏逻辑 */
+  window.__sokState = function () {
+    var goals = [];
+    for (var i = 0; i < G.W * G.H; i++) {
+      if (G.goal[i]) goals.push({ x: i % G.W, y: Math.floor(i / G.W) });
+    }
+    return {
+      mode: G.mode, solved: G.solved, moves: G.moves, pushes: G.pushes,
+      index: G.index, W: G.W, H: G.H, history: G.history.length,
+      players: G.players.map(function (p) {
+        return { x: p.x, y: p.y, push: p.push };
+      }),
+      boxes: G.boxes.map(function (b) { return { x: b.x, y: b.y }; }),
+      goals: goals
+    };
+  };
+
+  resizeCanvas();
+  updateModeSeg();
+  loadLevel(0);
+  if (new URLSearchParams(location.search).get('room')) setTimeout(openNet, 30);
+  requestAnimationFrame(function (t) { lastT = t; frame(t); });
+})();
+</script>
+</body>
+</html>
