@@ -180,8 +180,11 @@ node tools/gen-levels.js 10    # 生成 10 个候选并打印 par
 
 ```
 game/                     GitHub 仓库根目录（原 arcade/ 的内容）
-├─ index.html             游戏架（入口）
+├─ index.html             游戏架（唯一总入口）
 ├─ serve-games.bat        一键挂到内网
+├─ README.md              玩家说明
+├─ AGENTS.md              工程规范（Codex / 唯一规则源）
+├─ CLAUDE.md              Claude Code 规范入口
 ├─ neon-runner/
 │  └─ index.html          跑酷（单文件，HTML+CSS+JS 全内联）
 ├─ sokoban/
@@ -201,6 +204,8 @@ game/                     GitHub 仓库根目录（原 arcade/ 的内容）
 
 两个游戏都是单文件、无外部资源、无 CDN，断网也能玩。
 音效由 WebAudio 现场合成，没有音频文件。
+
+开发 / 贡献规范见 [AGENTS.md](AGENTS.md)（Claude Code 见 [CLAUDE.md](CLAUDE.md)）。
 
 ---
 
