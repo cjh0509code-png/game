@@ -12,7 +12,7 @@
  */
 const path = require('path');
 const { solve, parse } = require('./solver.js');
-const levels = require(path.join(__dirname, '..', 'sokoban', 'levels.js'));
+const levels = require(path.join(__dirname, '..', 'games', 'sokoban', 'levels.js'));
 
 let failed = 0;
 const rows = [];

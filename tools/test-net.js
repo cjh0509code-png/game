@@ -120,7 +120,7 @@ async function waitPort(port) {
   try {
     if (!(await waitPort(PORT)) || !(await waitPort(PORT + 2))) throw new Error('Chrome 调试端口没起来');
 
-    A = await newPage(PORT, BASE + '/neon-runner/');
+    A = await newPage(PORT, BASE + '/games/neon-runner/');
     await waitFor(A, '!!document.getElementById("btnNet")', 15000);
 
     // ---- A 建房 ----
@@ -138,7 +138,7 @@ async function waitPort(port) {
     ok('空位提示还在', await A.eval('!!document.querySelector(".gr-seat.gr-empty")'));
 
     // ---- B 通过邀请链接进来 ----
-    B = await newPage(PORT + 2, BASE + '/neon-runner/?room=' + code);
+    B = await newPage(PORT + 2, BASE + '/games/neon-runner/?room=' + code);
     await waitFor(B, '!!document.querySelector("[data-act=join]")', 15000);
     await B.eval(`
       document.getElementById('grName').value = '队友阿强';
@@ -164,7 +164,7 @@ async function waitPort(port) {
     await waitFor(A, 'document.querySelector("[data-act=start]") && !document.querySelector("[data-act=start]").disabled');
     ok('准备后房主可以开始', true);
 
-    await A.shot(path.join(__dirname, '..', 'neon-runner', 'preview-lobby.png'));
+    await A.shot(path.join(__dirname, '..', 'games', 'neon-runner', 'preview-lobby.png'));
 
     // ---- 房主开局 ----
     const t0 = Date.now();
@@ -205,7 +205,7 @@ async function waitPort(port) {
     ok('房主（先掉血）看到出局', titleA.replace(/\s/g, '').indexOf('出局') >= 0, titleA);
     ok('队友看到自己赢', titleB.replace(/\s/g, '').indexOf('赢') >= 0, titleB);
 
-    await B.shot(path.join(__dirname, '..', 'neon-runner', 'preview-win.png'));
+    await B.shot(path.join(__dirname, '..', 'games', 'neon-runner', 'preview-win.png'));
 
     // ---- 房主重开，双方回到房间 ----
     await A.eval('document.getElementById("btnRetry").click()');
@@ -214,7 +214,7 @@ async function waitPort(port) {
     ok('重开后双方都回到房间面板', true);
     ok('重开后队友需要重新准备', await B.eval('!!document.querySelector("[data-act=ready]")'));
 
-    await A.shot(path.join(__dirname, '..', 'neon-runner', 'preview-lobby.png'));
+    await A.shot(path.join(__dirname, '..', 'games', 'neon-runner', 'preview-lobby.png'));
   } catch (err) {
     fail++;
     console.log('  ERROR  ' + err.message);

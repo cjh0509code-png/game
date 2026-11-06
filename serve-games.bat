@@ -6,6 +6,6 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-node tools\serve.js
+node server\serve.js
 echo.
 pause

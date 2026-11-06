@@ -4,6 +4,7 @@
  *   node tools/test-sokoban-net.js
  */
 const fs = require('fs');
+const path = require('path');
 const { sleep, launchChrome, waitPort, newPage, waitFor } = require('./cdp-lib');
 
 const BASE = process.argv[2] || 'http://127.0.0.1:8080';
@@ -40,7 +41,7 @@ async function step(page) {
   try {
     if (!(await waitPort(P1)) || !(await waitPort(P2))) throw new Error('Chrome 没起来');
 
-    A = await newPage(P1, BASE + '/sokoban/');
+    A = await newPage(P1, BASE + '/games/sokoban/');
     await waitFor(A, '!!document.querySelector("[data-mode=net]")', 15000);
     await A.eval('document.querySelector("[data-mode=net]").click()');
     await waitFor(A, '!!document.getElementById("grName")');
@@ -53,7 +54,7 @@ async function step(page) {
     const code = (await A.eval('document.querySelector(".gr-code-box b").textContent.trim()')).toUpperCase();
     ok('房主建出房间', /^[A-Z0-9]{4}$/.test(code), code);
 
-    B = await newPage(P2, BASE + '/sokoban/?room=' + code);
+    B = await newPage(P2, BASE + '/games/sokoban/?room=' + code);
     await waitFor(B, '!!document.querySelector("[data-act=join]")', 15000);
     await B.eval(`
       document.getElementById('grName').value = '推箱乙';
@@ -84,7 +85,7 @@ async function step(page) {
     ok('双方在同一关', sa0.index === sb0.index && sa0.index === 2, [sa0.index, sb0.index]);
     ok('场上两个工人', sa0.players.length === 2 && sb0.players.length === 2);
     ok('换关后棋盘一致', JSON.stringify(sa0.boxes) === JSON.stringify(sb0.boxes), { a: sa0.boxes, b: sb0.boxes });
-    await A.shot('C:/Users/EDY/Desktop/项目/game/arcade/sokoban/preview-net.png');
+    await A.shot(path.join(__dirname, '..', 'games', 'sokoban', 'preview-net.png'));
 
     // ---- 房主走一步，队友那边要跟着动 ----
     const moved = await step(A);

@@ -1,10 +1,10 @@
 'use strict';
 /**
  * 游戏架服务（零依赖）
- *   node tools/serve.js          → 默认 8080，被占用自动顺延
+ *   node server/serve.js         → 默认 8080，被占用自动顺延
  *
  * 两部分：
- *   1) 静态资源：只对外提供 index.html、neon-runner/、sokoban/、multiplayer/
+ *   1) 静态资源：只对外提供 index.html、games/、shared/
  *   2) 联机房间 API：任一多人游戏共用同一套"房主 - 准备 - 开局"规则
  *        POST /api/room/create   {game, name}
  *        POST /api/room/join     {game, code, name}
@@ -43,7 +43,7 @@ const MIME = {
 };
 
 /** 白名单根：只允许这些目录下的文件 */
-const ALLOWED_DIRS = ['neon-runner', 'sokoban', 'multiplayer'].map((d) => path.join(ROOT, d));
+const ALLOWED_DIRS = ['games/neon-runner', 'games/sokoban', 'shared'].map((d) => path.join(ROOT, d));
 const ALLOWED_FILES = [path.join(ROOT, 'index.html')];
 
 function isInside(file, dir) {
@@ -55,11 +55,11 @@ function resolveTarget(pathname) {
   let rel = decodeURIComponent(pathname);
   if (rel === '/' || rel === '') rel = '/index.html';
   const clean = path.normalize(rel).replace(/^([/\\])+/, '');
-  const full = path.join(ROOT, clean);
+  let full = path.join(ROOT, clean);
 
+  // 目录先落到 index.html，再统一过白名单，避免绕过白名单读到目录入口
   if (fs.existsSync(full) && fs.statSync(full).isDirectory()) {
-    const idx = path.join(full, 'index.html');
-    return fs.existsSync(idx) ? idx : null;
+    full = path.join(full, 'index.html');
   }
   if (!fs.existsSync(full)) return null;
 
@@ -529,7 +529,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 目录跳转：/sokoban → /sokoban/
+  // 目录跳转：/games/sokoban → /games/sokoban/
   if (!pathname.endsWith('/') && !path.extname(pathname)) {
     const probe = path.join(ROOT, pathname.replace(/^\/+/, ''));
     if (fs.existsSync(probe) && fs.statSync(probe).isDirectory()) {

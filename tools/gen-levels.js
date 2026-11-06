@@ -9,7 +9,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const levelsMod = require(path.join(__dirname, '..', 'sokoban', 'levels.js'));
+const levelsMod = require(path.join(__dirname, '..', 'games', 'sokoban', 'levels.js'));
 
 /* ---------- 可复现随机 ---------- */
 function mulberry32(a) {

@@ -6,12 +6,12 @@
 
 | 霓虹疾走 · 联机结算 | 推箱子 · 联机协作 |
 |---|---|
-| ![](neon-runner/preview-win.png) | ![](sokoban/preview.png) |
+| ![](games/neon-runner/preview-win.png) | ![](games/sokoban/preview.png) |
 
 | | 类型 | 玩法 | 操作 | 单局时长 |
 |---|---|---|---|---|
-| **霓虹疾走** `neon-runner/` | 动作 · 无尽跑酷 | 躲障碍、吃能量，速度和障碍密度一路上升；**3 格生命，掉完才结束**（无时间限制），单人冲分或**联机对战** | `空格/↑/W` 跳 · `↓/S` 滑 | 30 秒 ~ 2 分钟 |
-| **推箱子** `sokoban/` | 益智 · 关卡解谜 | 把箱子推到目标点，**24 关**逐步变难（最优推数 1 → 29）；支持**联机协作** | `方向键/WASD` 移动 · `Z` 撤销 · `R` 重来 · `Esc` 关卡表 | 每关 1~15 分钟 |
+| **霓虹疾走** `games/neon-runner/` | 动作 · 无尽跑酷 | 躲障碍、吃能量，速度和障碍密度一路上升；**3 格生命，掉完才结束**（无时间限制），单人冲分或**联机对战** | `空格/↑/W` 跳 · `↓/S` 滑 | 30 秒 ~ 2 分钟 |
+| **推箱子** `games/sokoban/` | 益智 · 关卡解谜 | 把箱子推到目标点，**24 关**逐步变难（最优推数 1 → 29）；支持**联机协作** | `方向键/WASD` 移动 · `Z` 撤销 · `R` 重来 · `Esc` 关卡表 | 每关 1~15 分钟 |
 
 ---
 
@@ -38,11 +38,11 @@ cd game
 把局域网地址发出去即可。首次运行若 Windows 弹防火墙提示，选「允许访问（专用网络）」。
 端口被占用会自动顺延到 8081、8082…，以命令行打印的为准。
 
-> 服务把本工程目录当作根目录，只对外暴露 `index.html`、`neon-runner/`、`sokoban/`、`multiplayer/` 四处，
+> 服务把本工程目录当作根目录，只对外暴露 `index.html`、`games/`、`shared/` 三处，
 > 同级目录里的其它工程不会被暴露。
 
 **放到公网（GitHub Pages）**：本工程是纯静态页面，在仓库 `Settings → Pages` 里选择 `main` 分支即可在线玩单人模式。
-联机模式依赖 `tools/serve.js` 的房间 API，静态托管不支持，需要在本地或任意 Node 环境运行。
+联机模式依赖 `server/serve.js` 的房间 API，静态托管不支持，需要在本地或任意 Node 环境运行。
 
 ---
 
@@ -91,7 +91,7 @@ HUD 左上角的 `×1.0 → ×2.5` 就是当前速度倍率，会随时间一路
 
 ### 联机对战
 
-房间规则对所有游戏通用，实现在 `tools/serve.js`（服务端）和 `multiplayer/room.js`（客户端，自带界面）：
+房间规则对所有游戏通用，实现在 `server/serve.js`（服务端）和 `shared/room.js`（客户端，自带界面）：
 
 - **第一个进房间的人是房主**，其他人进来点「准备」，房主点「开始游戏」。
 - 房主点开始后服务端给出 3 秒倒计时，**所有人同一时刻出发**。
@@ -129,7 +129,7 @@ HUD 左上角的 `×1.0 → ×2.5` 就是当前速度倍率，会随时间一路
 
 > 联机时不能撤销（会和队友的状态打架），用「重来」把整局同步回起点。
 
-关卡数据在 `sokoban/levels.js`，只有这一份，游戏和校验脚本共用。
+关卡数据在 `games/sokoban/levels.js`，只有这一份，游戏和校验脚本共用。
 
 ```
 # 墙    空格 地板    . 目标    $ 箱子    * 箱子在目标上    @ 玩家    + 玩家在目标上
@@ -185,20 +185,23 @@ game/                     GitHub 仓库根目录（原 arcade/ 的内容）
 ├─ README.md              玩家说明
 ├─ AGENTS.md              工程规范（Codex / 唯一规则源）
 ├─ CLAUDE.md              Claude Code 规范入口
-├─ neon-runner/
-│  └─ index.html          跑酷（单文件，HTML+CSS+JS 全内联）
-├─ sokoban/
-│  ├─ index.html          推箱子（单文件）
-│  └─ levels.js           关卡数据（游戏与校验脚本共用）
-├─ multiplayer/
-│  └─ room.js             公用联机房间（房主/准备/开局 + 实时同步 + 界面）
-└─ tools/
-   ├─ serve.js            静态服务 + 房间 API（端口自动顺延 + 目录白名单）
-   ├─ solver.js           推箱子求解核心（BFS + 死锁剪枝）
-   ├─ verify-levels.js    关卡校验：可解性 + 最优推数
-   ├─ gen-levels.js       关卡生成（反向拉箱，保证可解）
-   ├─ test-room.js        房间流程自测（25 项）
-   ├─ test-net.js         跑酷联机双端自测（16 项）
+├─ games/                 所有游戏，一个游戏一个目录
+│  ├─ neon-runner/
+│  │  └─ index.html      跑酷（单文件，HTML+CSS+JS 全内联）
+│  └─ sokoban/
+│     ├─ index.html      推箱子（单文件）
+│     └─ levels.js       关卡数据（游戏与校验脚本共用）
+├─ shared/
+│  └─ room.js            公用联机房间（所有游戏共用）
+├─ server/
+│  └─ serve.js           静态服务 + 房间 API（端口自动顺延 + 目录白名单）
+└─ tools/                开发与自测脚本（不对外提供）
+   ├─ solver.js          推箱子求解核心（BFS + 死锁剪枝）
+   ├─ verify-levels.js   关卡校验：可解性 + 最优推数
+   ├─ gen-levels.js      关卡生成（反向拉箱，保证可解）
+   ├─ cdp-lib.js         Chrome CDP 自测工具
+   ├─ test-room.js       房间流程自测（25 项）
+   ├─ test-net.js        跑酷联机双端自测（16 项）
    └─ test-sokoban-net.js 推箱子联机自测（15 项）
 ```
 

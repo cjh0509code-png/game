@@ -2,7 +2,7 @@
  * GameRoom —— 公用联机房间客户端
  *
  * 任何多人游戏只要引这一行：
- *   <script src="/multiplayer/room.js"></script>
+ *   <script src="../../shared/room.js"></script>
  *
  * 然后：
  *   GameRoom.open({
