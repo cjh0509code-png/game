@@ -2,7 +2,11 @@
 
 两款纯前端游戏，**零依赖、零构建**，双击 HTML 就能玩，也可以用一条命令挂到内网给别人连。
 
-所在位置：`C:\Users\EDY\Desktop\项目\game\arcade`（`game/` 下单独一层，与 `ShatteredLife/`、`intranet-gomoku/` 等其它工程并列，互不影响）。
+**GitHub 仓库**：<https://github.com/cjh0509code-png/game>
+
+| 霓虹疾走 · 联机结算 | 推箱子 · 联机协作 |
+|---|---|
+| ![](neon-runner/preview-win.png) | ![](sokoban/preview.png) |
 
 | | 类型 | 玩法 | 操作 | 单局时长 |
 |---|---|---|---|---|
@@ -12,6 +16,15 @@
 ---
 
 ## 一、怎么玩
+
+**从 GitHub 获取**：
+
+```bash
+git clone https://github.com/cjh0509code-png/game.git
+cd game
+```
+
+仓库根目录就是本工程（原 `arcade/` 文件夹的内容），克隆下来即可运行，无需安装依赖。
 
 **自己玩**：双击 `index.html` 打开游戏架，点进去就行（`file://` 直接可用，不依赖服务器）。
 
@@ -25,8 +38,11 @@
 把局域网地址发出去即可。首次运行若 Windows 弹防火墙提示，选「允许访问（专用网络）」。
 端口被占用会自动顺延到 8081、8082…，以命令行打印的为准。
 
-> 服务把本文件夹（`arcade/`）当作根目录，只对外暴露 `index.html`、`neon-runner/`、`sokoban/`、`multiplayer/` 四处。
-> 上一层 `game/` 里的其它工程（`ShatteredLife/`、`agent-game-forge/`、`intranet-gomoku/`）都在根目录之外，不会被暴露。
+> 服务把本工程目录当作根目录，只对外暴露 `index.html`、`neon-runner/`、`sokoban/`、`multiplayer/` 四处，
+> 同级目录里的其它工程不会被暴露。
+
+**放到公网（GitHub Pages）**：本工程是纯静态页面，在仓库 `Settings → Pages` 里选择 `main` 分支即可在线玩单人模式。
+联机模式依赖 `tools/serve.js` 的房间 API，静态托管不支持，需要在本地或任意 Node 环境运行。
 
 ---
 
@@ -163,25 +179,24 @@ node tools/gen-levels.js 10    # 生成 10 个候选并打印 par
 ## 四、目录
 
 ```
-game/
-└─ arcade/               本工程（游戏架整体）
-   ├─ index.html         游戏架（入口）
-   ├─ serve-games.bat    一键挂到内网
-   ├─ neon-runner/
-   │  └─ index.html     跑酷（单文件，HTML+CSS+JS 全内联）
-   ├─ sokoban/
-   │  ├─ index.html     推箱子（单文件）
-   │  └─ levels.js      关卡数据（游戏与校验脚本共用）
-   ├─ multiplayer/
-   │  └─ room.js        公用联机房间（房主/准备/开局 + 实时同步 + 界面）
-   └─ tools/
-      ├─ serve.js       静态服务 + 房间 API（端口自动顺延 + 目录白名单）
-      ├─ solver.js      推箱子求解核心（BFS + 死锁剪枝）
-      ├─ verify-levels.js  关卡校验：可解性 + 最优推数
-      ├─ gen-levels.js  关卡生成（反向拉箱，保证可解）
-      ├─ test-room.js   房间流程自测（25 项）
-      ├─ test-net.js    跑酷联机双端自测（16 项）
-      └─ test-sokoban-net.js  推箱子联机自测（15 项）
+game/                     GitHub 仓库根目录（原 arcade/ 的内容）
+├─ index.html             游戏架（入口）
+├─ serve-games.bat        一键挂到内网
+├─ neon-runner/
+│  └─ index.html          跑酷（单文件，HTML+CSS+JS 全内联）
+├─ sokoban/
+│  ├─ index.html          推箱子（单文件）
+│  └─ levels.js           关卡数据（游戏与校验脚本共用）
+├─ multiplayer/
+│  └─ room.js             公用联机房间（房主/准备/开局 + 实时同步 + 界面）
+└─ tools/
+   ├─ serve.js            静态服务 + 房间 API（端口自动顺延 + 目录白名单）
+   ├─ solver.js           推箱子求解核心（BFS + 死锁剪枝）
+   ├─ verify-levels.js    关卡校验：可解性 + 最优推数
+   ├─ gen-levels.js       关卡生成（反向拉箱，保证可解）
+   ├─ test-room.js        房间流程自测（25 项）
+   ├─ test-net.js         跑酷联机双端自测（16 项）
+   └─ test-sokoban-net.js 推箱子联机自测（15 项）
 ```
 
 两个游戏都是单文件、无外部资源、无 CDN，断网也能玩。
